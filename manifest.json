@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "استخراج الأسئلة | Quiz Extractor",
+  "version": "2.0.0",
+  "description": "Extract quiz questions, answers, and OCR text from images. Export as organized ZIP file.",
+  "author": "Quiz Extractor",
+  "homepage_url": "https://abt-data.com",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "storage"
+  ],
+  "host_permissions": [
+    "*://abt-data.com/student/assessment/quiz/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["lib/*"],
+      "matches": ["*://abt-data.com/*"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "استخراج الأسئلة",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://abt-data.com/student/assessment/quiz/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

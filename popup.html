@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استخراج الأسئلة</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      width: 340px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 16px;
+      background: #f8fafc;
+      color: #1e293b;
+    }
+    h3 {
+      text-align: center;
+      margin-bottom: 16px;
+      color: #0f172a;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .section {
+      margin-bottom: 14px;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 10px;
+    }
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+    }
+    .toggle label {
+      font-size: 14px;
+      color: #334155;
+    }
+    .toggle input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #2563eb;
+    }
+    .radio-group {
+      display: flex;
+      gap: 20px;
+      padding-top: 4px;
+    }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .radio-option input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #2563eb;
+    }
+    .radio-option span {
+      font-size: 14px;
+      color: #334155;
+    }
+    #extractBtn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+    #extractBtn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+    #extractBtn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .progress-container {
+      margin-top: 16px;
+      display: none;
+    }
+    .progress-container.show {
+      display: block;
+    }
+    .progress-label {
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+    .progress-bar-bg {
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 4px;
+    }
+    .status {
+      margin-top: 12px;
+      padding: 10px 12px;
+      background: #f1f5f9;
+      border-radius: 6px;
+      font-size: 13px;
+      text-align: center;
+      display: none;
+    }
+    .status.show {
+      display: block;
+    }
+    .status.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .status.progress {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .footer {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <h3>استخراج الأسئلة</h3>
+  
+  <div class="section">
+    <div class="section-title">خيارات التصدير</div>
+    
+    <div class="toggle">
+      <label for="includeImages">تشمل الصور</label>
+      <input type="checkbox" id="includeImages" checked>
+    </div>
+    
+    <div class="toggle">
+      <label for="enableOCR">استخراج نص الصور (OCR)</label>
+      <input type="checkbox" id="enableOCR" checked>
+    </div>
+  </div>
+  
+  <div class="section">
+    <div class="section-title">صيغة الملف</div>
+    <div class="radio-group">
+      <label class="radio-option">
+        <input type="radio" name="format" value="txt" checked>
+        <span>TXT</span>
+      </label>
+      <label class="radio-option">
+        <input type="radio" name="format" value="json">
+        <span>JSON</span>
+      </label>
+    </div>
+  </div>
+  
+  <button id="extractBtn">استخراج الأسئلة</button>
+  
+  <div class="progress-container" id="progressContainer">
+    <div class="progress-label" id="progressLabel">جاري المعالجة...</div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
+  
+  <div class="status" id="status"></div>
+  
+  <div class="footer">الصيغة: ZIP مضغوط</div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
