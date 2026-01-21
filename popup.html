@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html dir="rtl" lang="ar">
+<html dir="ltr" lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>استخراج الأسئلة</title>
+  <title>Quiz Extractor</title>
   <style>
     * {
       box-sizing: border-box;
@@ -156,24 +156,24 @@
   </style>
 </head>
 <body>
-  <h3>استخراج الأسئلة</h3>
+  <h3>Quiz Extractor</h3>
   
   <div class="section">
-    <div class="section-title">خيارات التصدير</div>
+    <div class="section-title">Export Options</div>
     
     <div class="toggle">
-      <label for="includeImages">تشمل الصور</label>
+      <label for="includeImages">Include Images</label>
       <input type="checkbox" id="includeImages" checked>
     </div>
     
     <div class="toggle">
-      <label for="enableOCR">استخراج نص الصور (OCR)</label>
+      <label for="enableOCR">Extract Text from Images (OCR)</label>
       <input type="checkbox" id="enableOCR" checked>
     </div>
   </div>
   
   <div class="section">
-    <div class="section-title">صيغة الملف</div>
+    <div class="section-title">Output Format</div>
     <div class="radio-group">
       <label class="radio-option">
         <input type="radio" name="format" value="txt" checked>
@@ -186,10 +186,10 @@
     </div>
   </div>
   
-  <button id="extractBtn">استخراج الأسئلة</button>
+  <button id="extractBtn">Extract Quiz</button>
   
   <div class="progress-container" id="progressContainer">
-    <div class="progress-label" id="progressLabel">جاري المعالجة...</div>
+    <div class="progress-label" id="progressLabel">Processing...</div>
     <div class="progress-bar-bg">
       <div class="progress-bar" id="progressBar"></div>
     </div>
@@ -197,7 +197,7 @@
   
   <div class="status" id="status"></div>
   
-  <div class="footer">الصيغة: ZIP مضغوط</div>
+  <div class="footer">Output: Compressed ZIP</div>
   
   <script src="popup.js"></script>
 </body>

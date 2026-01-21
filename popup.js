@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const extractBtn = document.getElementById('extractBtn');
   const includeImagesCheckbox = document.getElementById('includeImages');
-  const enableOCRLabel = document.querySelector('label[for="enableOCR"]');
   const enableOCRCheckbox = document.getElementById('enableOCR');
   const formatRadios = document.querySelectorAll('input[name="format"]');
   const progressContainer = document.getElementById('progressContainer');
@@ -27,14 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
     hideStatus();
     progressContainer.classList.add('show');
     progressBar.style.width = '0%';
-    progressLabel.textContent = 'جاري بدء الاستخراج...';
+    progressLabel.textContent = 'Starting extraction...';
     
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       
       chrome.tabs.sendMessage(tab.id, { action: 'extract', options }, async (response) => {
         if (chrome.runtime.lastError) {
-          showStatus('حدث خطأ. تأكد من أنك في صفحة الاختبار.', 'error');
+          showStatus('Error. Make sure you are on a quiz page.', 'error');
           resetUI();
           return;
         }
@@ -42,58 +41,58 @@ document.addEventListener('DOMContentLoaded', () => {
         handleResponse(response, options);
       });
     } catch (error) {
-      showStatus(`خطأ: ${error.message}`, 'error');
+      showStatus(`Error: ${error.message}`, 'error');
       resetUI();
     }
   }
   
   function handleResponse(response, options) {
     if (!response) {
-      showStatus('لم يتم استلام استجابة من الصفحة.', 'error');
+      showStatus('No response received from page.', 'error');
       resetUI();
       return;
     }
     
     switch (response.status) {
       case 'started':
-        updateProgress(5, 'جاري تحميل محركات OCR...');
+        updateProgress(5, 'Loading OCR engine...');
         break;
         
       case 'finding_questions':
-        updateProgress(10, 'جاري البحث عن الأسئلة...');
+        updateProgress(10, 'Finding questions...');
         break;
         
       case 'questions_found':
-        updateProgress(15, `تم العثور على ${response.count} سؤال`);
+        updateProgress(15, `Found ${response.count} questions`);
         break;
         
       case 'extracting_images':
-        updateProgress(25, `جاري استخراج الصور من ${response.count} سؤال...`);
+        updateProgress(25, `Extracting images from ${response.count} questions...`);
         break;
         
       case 'ocr_started':
-        updateProgress(40, 'جاري قراءة النص من الصور (OCR)...');
+        updateProgress(40, 'Running OCR on images...');
         break;
         
       case 'ocr_progress':
-        updateProgress(40 + (response.percent || 0), `جاري قراءة الصورة ${response.current}/${response.total}...`);
+        updateProgress(40 + (response.percent || 0), `Processing image ${response.current}/${response.total}...`);
         break;
         
       case 'processing_answers':
-        updateProgress(80, 'جاري معالجة الإجابات...');
+        updateProgress(80, 'Processing answers...');
         break;
         
       case 'generating_zip':
-        updateProgress(90, 'جاري تعبئة ملف ZIP...');
+        updateProgress(90, 'Creating ZIP file...');
         break;
         
       case 'complete':
-        updateProgress(100, 'اكتمل الاستخراج!');
+        updateProgress(100, 'Extraction complete!');
         downloadZip(response.data, options);
         break;
         
       case 'error':
-        showStatus(`خطأ: ${response.message}`, 'error');
+        showStatus(`Error: ${response.message}`, 'error');
         resetUI();
         break;
         
@@ -111,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   async function downloadZip(data, options) {
     try {
-      progressLabel.textContent = 'جاري تحميل الملف...';
+      progressLabel.textContent = 'Downloading file...';
       
       chrome.runtime.sendMessage({
         action: 'download',
@@ -119,16 +118,16 @@ document.addEventListener('DOMContentLoaded', () => {
         options: options
       }, (response) => {
         if (chrome.runtime.lastError) {
-          showStatus('تم الاستخراج لكن فشل التحميل.', 'error');
+          showStatus('Extraction done but download failed.', 'error');
           resetUI();
           return;
         }
         
-        showStatus('تم تحميل ملف ZIP بنجاح!', 'success');
+        showStatus('ZIP file downloaded successfully!', 'success');
         setTimeout(resetUI, 2000);
       });
     } catch (error) {
-      showStatus(`خطأ في التحميل: ${error.message}`, 'error');
+      showStatus(`Download error: ${error.message}`, 'error');
       resetUI();
     }
   }

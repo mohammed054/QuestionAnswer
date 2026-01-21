@@ -4,7 +4,7 @@ Chrome extension to extract quiz questions, answers, and OCR text from images on
 
 ## Features
 
-- Extract quiz questions with full Arabic text
+- Extract quiz questions with full Arabic text preservation
 - OCR scanning for images containing Arabic and math content
 - Detect correct answers (when visually indicated)
 - Download as organized ZIP file containing:
@@ -27,9 +27,9 @@ Chrome extension to extract quiz questions, answers, and OCR text from images on
 2. Click the extension icon
 3. Configure options:
    - ✓ Include Images (default: ON)
-   - ✓ Enable OCR (default: ON)
+   - ✓ Extract Text from Images (OCR) (default: ON)
    - Format: TXT / JSON
-4. Click **استخراج الأسئلة** (Extract Quiz)
+4. Click **Extract Quiz**
 5. Wait for extraction to complete
 6. ZIP file downloads automatically
 
@@ -43,7 +43,7 @@ quiz_164194_2026-01-21.zip
 │   ├── q1_img1.png
 │   ├── q1_img2.png
 │   └── q2_img1.jpg
-└── ocr_text.txt       # OCR results
+└── ocr_text.txt       # OCR results from images
 ```
 
 ## Example TXT Output
@@ -55,7 +55,7 @@ Questions: 3
 ═══════════════════════════════════════════════════════════════════
 
 ───────────────────────────────────────────────────────────────
-س1:
+Q1:
 ───────────────────────────────────────────────────────────────
 [PASSAGE]
 قال الله تعالى: ﴿ إِنَّا كُلَّ شَيْءٍ خَلَقْنَاهُ بِقَدَرٍ ﴾
@@ -78,14 +78,14 @@ Questions: 3
 ## OCR Notes
 
 - Uses Tesseract.js (loaded via CDN)
-- Supports Arabic text and math symbols
+- Supports Arabic text and math symbols (√ × ÷ + − = ² ³ ¼½¾)
 - Best effort for complex math expressions
 - Low confidence results are returned as-is (no guessing)
 
 ## Troubleshooting
 
 - **"Questions not found"**: Wait for page to fully load, then retry
-- **OCR fails**: Check internet connection (CDN required)
+- **OCR fails**: Check internet connection (CDN required for Tesseract.js)
 - **Images not downloading**: May be blocked by CORS; included in OCR text instead
 - **Correct answers not detected**: Extension relies on visual indicators; some layouts may not be detectable
 
@@ -94,9 +94,9 @@ Questions: 3
 ```
 quiz-extension/
 ├── manifest.json      # Extension configuration
-├── popup.html         # Extension popup UI
+├── popup.html         # Extension popup UI (English)
 ├── popup.js           # Popup message handling
-├── content.js         # Quiz extraction + OCR
+├── content.js         # Quiz extraction + OCR pipeline
 ├── background.js      # ZIP generation + download
 ├── icons/
 │   ├── icon16.png
