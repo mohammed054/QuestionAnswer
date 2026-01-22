@@ -1,14 +1,20 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'download') {
     (async () => {
-      await createAndDownloadZip(message.data, message.options);
-      sendResponse({ success: true });
+      try {
+        await createAndDownloadZip(message.data, message.options);
+        sendResponse({ success: true });
+      } catch (error) {
+        console.error('Download error:', error);
+        sendResponse({ success: false, error: error.message });
+      }
     })();
     return true;
   }
 });
 
 async function createAndDownloadZip(data, options) {
+  console.log('Starting download for quiz:', data.quizId);
   const zip = new JSZip();
   
   const timestamp = new Date().toISOString().slice(0, 10);
@@ -96,13 +102,20 @@ async function createAndDownloadZip(data, options) {
   }
   
   const content = await zip.generateAsync({ type: 'blob' });
+  console.log('ZIP created, size:', content.size);
   
   const url = URL.createObjectURL(content);
+  console.log('Downloading ZIP...');
   
   await chrome.downloads.download({
     url: url,
     filename: `${baseFolder}.zip`
   });
   
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  console.log('Download initiated successfully');
+  
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    console.log('URL revoked');
+  }, 10000);
 }
