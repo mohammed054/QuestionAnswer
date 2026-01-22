@@ -101,8 +101,7 @@ async function createAndDownloadZip(data, options) {
   
   await chrome.downloads.download({
     url: url,
-    filename: `${baseFolder}.zip`,
-    saveAs: true
+    filename: `${baseFolder}.zip`
   });
   
   setTimeout(() => URL.revokeObjectURL(url), 10000);
