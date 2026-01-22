@@ -18,7 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const options = {
       includeImages: includeImagesCheckbox.checked,
       enableOCR: enableOCRCheckbox.checked,
-      format: document.querySelector('input[name="format"]:checked').value
+      format: document.querySelector('input[name="format"]:checked').value,
+      createZip: true
     };
     
     isExtracting = true;
@@ -88,12 +89,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
       case 'complete':
         updateProgress(100, 'Extraction complete!');
-        downloadZip(response.data, options);
         break;
         
       case 'error':
         showStatus(`Error: ${response.message}`, 'error');
         resetUI();
+        break;
+
+      case 'downloadReady':
+        updateProgress(100, 'Download started!');
+        setTimeout(resetUI, 2000);
         break;
         
       default:
@@ -105,39 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
     progressBar.style.width = percent + '%';
     if (label) {
       progressLabel.textContent = label;
-    }
-  }
-  
-  async function downloadZip(data, options) {
-    try {
-      progressLabel.textContent = 'Downloading file...';
-      
-  chrome.runtime.sendMessage({
-    action: 'download',
-    data: data,
-    options: options
-  }, (response) => {
-    console.log('Download response:', response);
-    if (chrome.runtime.lastError) {
-      console.error('Runtime error:', chrome.runtime.lastError);
-      showStatus('Extraction done but download failed: ' + chrome.runtime.lastError.message, 'error');
-      resetUI();
-      return;
-    }
-    
-    if (response && response.success) {
-      console.log('Download successful!');
-      showStatus('Download started! Check Downloads folder.', 'success');
-      setTimeout(resetUI, 3000);
-    } else {
-      console.error('Download failed:', response?.error);
-      showStatus('Download failed: ' + (response?.error || 'Unknown error'), 'error');
-      resetUI();
-    }
-  });
-    } catch (error) {
-      showStatus(`Download error: ${error.message}`, 'error');
-      resetUI();
     }
   }
   
