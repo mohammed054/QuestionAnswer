@@ -125,7 +125,8 @@ async function createAndDownloadZip(data, options) {
       }
     }
   }
-  
+
+  const content = await zip.generateAsync({ type: 'blob' });
   console.log('ZIP created, size:', content.size);
   console.log('Creating blob URL...');
   
