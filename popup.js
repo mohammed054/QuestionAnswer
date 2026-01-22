@@ -112,20 +112,29 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       progressLabel.textContent = 'Downloading file...';
       
-      chrome.runtime.sendMessage({
-        action: 'download',
-        data: data,
-        options: options
-      }, (response) => {
-        if (chrome.runtime.lastError) {
-          showStatus('Extraction done but download failed.', 'error');
-          resetUI();
-          return;
-        }
-        
-        showStatus('ZIP file downloaded successfully!', 'success');
-        setTimeout(resetUI, 2000);
-      });
+  chrome.runtime.sendMessage({
+    action: 'download',
+    data: data,
+    options: options
+  }, (response) => {
+    console.log('Download response:', response);
+    if (chrome.runtime.lastError) {
+      console.error('Runtime error:', chrome.runtime.lastError);
+      showStatus('Extraction done but download failed: ' + chrome.runtime.lastError.message, 'error');
+      resetUI();
+      return;
+    }
+    
+    if (response && response.success) {
+      console.log('Download successful!');
+      showStatus('Download started! Check Downloads folder.', 'success');
+      setTimeout(resetUI, 3000);
+    } else {
+      console.error('Download failed:', response?.error);
+      showStatus('Download failed: ' + (response?.error || 'Unknown error'), 'error');
+      resetUI();
+    }
+  });
     } catch (error) {
       showStatus(`Download error: ${error.message}`, 'error');
       resetUI();

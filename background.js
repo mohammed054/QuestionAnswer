@@ -2,7 +2,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'download') {
     (async () => {
       try {
-        await createAndDownloadZip(message.data, message.options);
+        console.log('Starting download process...');
+        console.log('Quiz data:', message.data.quizId, message.data.questionCount);
+        console.log('Options:', message.options);
+        
+        const result = await createAndDownloadZip(message.data, message.options);
+        console.log('Download result:', result);
         sendResponse({ success: true });
       } catch (error) {
         console.error('Download error:', error);
@@ -11,6 +16,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     })();
     return true;
   }
+});
+
+chrome.downloads.onChanged.addListener((downloadDelta) => {
+  console.log('Download changed:', downloadDelta);
+});
+
+chrome.downloads.onCreated.addListener((downloadItem) => {
+  console.log('Download created:', downloadItem);
 });
 
 async function createAndDownloadZip(data, options) {
@@ -101,21 +114,28 @@ async function createAndDownloadZip(data, options) {
     }
   }
   
-  const content = await zip.generateAsync({ type: 'blob' });
   console.log('ZIP created, size:', content.size);
+  console.log('Creating blob URL...');
   
   const url = URL.createObjectURL(content);
-  console.log('Downloading ZIP...');
+  console.log('Blob URL created:', url.substring(0, 50) + '...');
   
-  await chrome.downloads.download({
+  const filename = `${baseFolder}.zip`;
+  console.log('Attempting to download:', filename);
+  
+  const downloadId = await chrome.downloads.download({
     url: url,
-    filename: `${baseFolder}.zip`
+    filename: filename,
+    saveAs: false
   });
   
-  console.log('Download initiated successfully');
+  console.log('Download initiated with ID:', downloadId);
   
+  // Clean up URL after delay
   setTimeout(() => {
+    console.log('Revoking URL...');
     URL.revokeObjectURL(url);
-    console.log('URL revoked');
-  }, 10000);
+  }, 5000);
+  
+  return { downloadId, filename, size: content.size };
 }
