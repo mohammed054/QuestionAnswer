@@ -37,7 +37,7 @@ class QuizExtractor {
     let waited = 0;
     
     while (waited < maxWait) {
-      const questions = document.querySelectorAll('.question.question-card');
+      const questions = document.querySelectorAll('.question-card');
       if (questions.length > 0) {
         return;
       }
@@ -48,7 +48,7 @@ class QuizExtractor {
   }
   
   async extractQuestions() {
-    const questionElements = document.querySelectorAll('.question.question-card');
+    const questionElements = document.querySelectorAll('.question-card');
     
     chrome.runtime.sendMessage({ status: 'questions_found', count: questionElements.length });
     
@@ -120,7 +120,7 @@ class QuizExtractor {
   }
   
   extractQuestionText(element) {
-    const textEl = element.querySelector('.question-content .row .col');
+    const textEl = element.querySelector('.question-content .col');
     if (textEl) {
       return textEl.textContent.trim();
     }
@@ -276,7 +276,7 @@ class QuizExtractor {
   
   extractAnswers(element) {
     const answers = [];
-    const answerElements = element.querySelectorAll('.form-check-label, .answer-option, [class*="answer"] label');
+    const answerElements = element.querySelectorAll('.form-check-label, .answer-option, [class*="answer"] label, label.form-check-label');
     
     answerElements.forEach((answerEl, index) => {
       const text = answerEl.textContent.trim();
