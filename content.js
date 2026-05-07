@@ -3,20 +3,28 @@ class QuizExtractor {
     this.questionCounter = 0;
     this.imageCounter = 0;
     this.options = null;
+    this.targetTabId = null;
   }
-  
-  async extract(options) {
+
+  sendProgress(status, data = {}) {
+    if (this.targetTabId) {
+      chrome.tabs.sendMessage(this.targetTabId, { status, ...data }).catch(() => {});
+    }
+  }
+
+  async extract(options, targetTabId) {
     this.options = options;
-    
+    this.targetTabId = targetTabId;
+
     try {
-      chrome.runtime.sendMessage({ status: 'started' });
-      
+      this.sendProgress('started');
+
       await this.waitForQuestions();
-      
-      chrome.runtime.sendMessage({ status: 'finding_questions' });
-      
+
+      this.sendProgress('finding_questions');
+
       const questions = await this.extractQuestions();
-      
+
       return {
         status: 'complete',
         data: {
@@ -49,13 +57,13 @@ class QuizExtractor {
   
   async extractQuestions() {
     const questionElements = document.querySelectorAll('.question-card');
-    
-    chrome.runtime.sendMessage({ status: 'questions_found', count: questionElements.length });
-    
+
+    this.sendProgress('questions_found', { count: questionElements.length });
+
     const questions = [];
-    
+
     if (this.options.enableOCR) {
-      chrome.runtime.sendMessage({ status: 'extracting_images', count: questionElements.length });
+      this.sendProgress('extracting_images', { count: questionElements.length });
     }
     
     for (let i = 0; i < questionElements.length; i++) {
@@ -86,7 +94,7 @@ class QuizExtractor {
     }
     
     if (this.options.enableOCR && this.imageCounter > 0) {
-      chrome.runtime.sendMessage({ status: 'processing_answers' });
+      this.sendProgress('processing_answers');
     }
     
     return questions;
@@ -231,9 +239,8 @@ class QuizExtractor {
     if (typeof Tesseract === 'undefined') {
       await this.loadTesseract();
     }
-    
-    chrome.runtime.sendMessage({
-      status: 'ocr_progress',
+
+    this.sendProgress('ocr_progress', {
       current: imageNum,
       total: totalImages,
       percent: ((imageNum - 1) / totalImages) * 100
@@ -494,8 +501,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (!extractor) {
         extractor = new QuizExtractor();
       }
-      const result = await extractor.extract(message.options);
-      
+
+      const tabId = sender.tab?.id;
+      const result = await extractor.extract(message.options, tabId);
+
       if (result.status === 'complete' && message.options.createZip) {
         try {
           const zipResult = await extractor.createZipBlob(result.data, message.options);

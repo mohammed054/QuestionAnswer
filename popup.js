@@ -7,38 +7,46 @@ document.addEventListener('DOMContentLoaded', () => {
   const progressLabel = document.getElementById('progressLabel');
   const progressBar = document.getElementById('progressBar');
   const statusEl = document.getElementById('status');
-  
+
   let isExtracting = false;
-  
+  let currentTabId = null;
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.status) {
+      handleResponse(message, {});
+    }
+  });
+
   extractBtn.addEventListener('click', startExtraction);
-  
+
   async function startExtraction() {
     if (isExtracting) return;
-    
+
     const options = {
       includeImages: includeImagesCheckbox.checked,
       enableOCR: enableOCRCheckbox.checked,
       format: document.querySelector('input[name="format"]:checked').value,
       createZip: true
     };
-    
+
     isExtracting = true;
     setControlsDisabled(true);
     hideStatus();
     progressContainer.classList.add('show');
     progressBar.style.width = '0%';
     progressLabel.textContent = 'Starting extraction...';
-    
+
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-      
+      currentTabId = tab.id;
+
       chrome.tabs.sendMessage(tab.id, { action: 'extract', options }, async (response) => {
         if (chrome.runtime.lastError) {
           showStatus('Error. Make sure you are on a quiz page.', 'error');
           resetUI();
           return;
         }
-        
+
         handleResponse(response, options);
       });
     } catch (error) {
